@@ -27,7 +27,8 @@ phishing_email_analyzer/
 ├── services.py          # API service layer for scan endpoints
 ├── route.py             # REST API endpoints
 ├── extension.py         # Additional external scan endpoints
-└── init.py          # Package initializer
+└── __init__.py          # Package initializer
+
 
 ---
 
