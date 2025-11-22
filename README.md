@@ -19,7 +19,9 @@ This work is part of the academic cybersecurity project **“EGuard – Email Ph
 
 phishing_email_analyzer/
 │
+
 ├── calc_score.py        # Phase 4: scoring system and risk verdicts
+
 ├── detection.py         # Phase 3: heuristic detection rules
 ├── extraction.py        # Phase 1: raw email extraction
 ├── parsing.py           # Phase 2: header, body, and link parsing
