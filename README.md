@@ -1,6 +1,3 @@
-ChatGPT said:# EGuard – Email Phishing Analysis and Detection  
-**Advanced Multi-Phase Email Security Analysis Framework**
-
 ## 📌 Overview
 EGuard is a multi-stage phishing-email analysis framework that processes `.eml` files, extracts and parses email content, evaluates heuristic indicators, computes a weighted risk score (0–100), and produces a structured JSON report. The system identifies a wide spectrum of malicious behaviors, including:
 
@@ -303,13 +300,3 @@ Submit a pull request
 📄 License
 This project is part of the academic cybersecurity work:
 “EGuard – Email Phishing Analysis and Detection”
-
-  
-**Q1:**  
-**How can I extend the scoring engine to include machine-learning-based features?**  
-
-**Q2:**  
-**What steps should I follow to containerize this backend with Docker and Docker Compose?**  
-
-**Q3:**  
-**How can I enhance the API to support batch scanning of multiple `.eml` files at once?**
