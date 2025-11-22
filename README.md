@@ -1,355 +1,315 @@
-EGuard – Email Phishing Analysis and Detection
-Advanced Multi-Phase Email Security Analysis Tool
-📌 Overview
+ChatGPT said:# EGuard – Email Phishing Analysis and Detection  
+**Advanced Multi-Phase Email Security Analysis Framework**
 
-EGuard is an AI-assisted phishing detection framework designed to analyze email messages, identify social-engineering patterns, detect spoofing attempts, and classify risk levels.
-The system focuses on parsing uploaded .eml files, extracting headers, links, attachments, and applying heuristic and structural checks.
+## 📌 Overview
+EGuard is a multi-stage phishing-email analysis framework that processes `.eml` files, extracts and parses email content, evaluates heuristic indicators, computes a weighted risk score (0–100), and produces a structured JSON report. The system identifies a wide spectrum of malicious behaviors, including:
 
-The project is built collaboratively by:
+- Spoofed sender identities  
+- Malicious redirects  
+- Typosquatted domains  
+- Fake login pages  
+- Dangerous or deceptive attachments  
+- Social-engineering language  
+- Forged SPF / DKIM / DMARC headers  
+- Brand impersonation  
 
-Backend Team – Responsible for the full analysis pipeline and API endpoints
+This work is part of the academic cybersecurity project **“EGuard – Email Phishing Analysis and Detection.”**
 
-Frontend Team – Builds the UI that displays results and dashboards
+---
 
-Email Simulation Team – Crafts realistic phishing emails to test detections
+## 📁 Repository Structure
 
-The analyzer returns a detailed report including:
 
-Risk verdict: safe, suspicious, malicious
-
-Authentication results (SPF/DKIM/DMARC)
-
-Link and attachment risk indicators
-
-Extra social-engineering flags
-
-Raw structured JSON (optional)
-
-📁 Repository Structure
 phishing_email_analyzer/
 │
 ├── calc_score.py        # Phase 4: scoring system and risk verdicts
-├── detection.py         # Phase 3: detection rules and heuristics
+├── detection.py         # Phase 3: heuristic detection rules
 ├── extraction.py        # Phase 1: raw email extraction
-├── parsing.py           # Phase 2: header/body parsing
-├── orchestration.py     # Full pipeline orchestrator
-├── services.py          # API-facing service layer
-├── route.py             # REST API endpoints for scanning
-├── extension.py         # External scan support (/ext-scan endpoint)
-└── __init__.py          # Package initializer
+├── parsing.py           # Phase 2: header, body, and link parsing
+├── orchestration.py     # Full analysis pipeline coordinator
+├── services.py          # API service layer for scan endpoints
+├── route.py             # REST API endpoints
+├── extension.py         # Additional external scan endpoints
+└── init.py          # Package initializer
 
+---
 
-Each file represents a logical stage of the phishing-email analysis workflow.
+## 🧠 System Architecture
 
-🚀 Features
-✔ Full Email Parsing
+EGuard operates through a structured four-phase pipeline:
 
-Parses raw .eml files including multipart MIME parts
+1. **Extraction**
+2. **Parsing**
+3. **Detection**
+4. **Scoring**
 
-Extracts text, HTML, attachments, URLs, IPs, email addresses
+The **orchestration** layer connects each phase and generates the final JSON report.
 
-✔ Heuristic Detection Engine
+---
 
-Detects:
+## 🔍 Phase Details
 
-Suspicious redirects
+### **PHASE 1 — Extraction**  
+**File:** `extraction.py`
 
-Typosquatting domains
+Responsibilities:
+- Parse `.eml` MIME structure  
+- Extract HTML, plain text, and attachments  
+- Collect URLs, email addresses, and IP addresses  
 
-Brand impersonation
+---
 
-Social-engineering wording
+### **PHASE 2 — Parsing**  
+**File:** `parsing.py`
 
-Header inconsistencies (From vs Return-Path vs Reply-To)
+Responsibilities:
+- Extract domains from sender-related headers  
+- Parse SPF, DKIM, and DMARC authentication results  
+- Normalize and analyze HTML links  
+- Compute SHA-256 hashes for attachments  
 
-SPF/DKIM/DMARC failures
+---
 
-Risky or double-extension attachments
+### **PHASE 3 — Detection**  
+**File:** `detection.py`
 
-Clickable images & HTML forms
+Responsibilities:
+- Detect mismatching or suspicious redirects  
+- Identify header domain inconsistencies  
+- Flag SPF/DKIM/DMARC failures  
+- Identify dangerous attachment types  
+- Detect double-extension tricks (e.g., `invoice.pdf.exe`)  
+- Analyze for social-engineering language  
+- Detect clickable images, HTML forms, brand impersonation  
+- Detect typosquatted or homograph domains  
 
-✔ Weighted Risk Scoring
+---
 
-Computes a normalized 0–100 score
+### **PHASE 4 — Scoring**  
+**File:** `calc_score.py`
 
-Assigns verdict: safe / suspicious / high-risk / malicious
+Responsibilities:
+- Count triggered detectors  
+- Apply weighted scoring logic  
+- Normalize output to 0–100  
+- Assign risk verdicts:  
+  - `safe`  
+  - `suspicious`  
+  - `high-risk`  
+  - `malicious`  
 
-✔ REST API Support
+---
 
-Two main endpoints:
+## 🔗 Pipeline Orchestration  
+**File:** `orchestration.py`
 
-POST /tools/Phishing-email/text-scan
+Use:
+```python
+report = analyze_phishing_email(source)
 
-POST /tools/Phishing-email/eml-scan
+The final report includes:
 
-✔ Frontend-Friendly Output
 
-Compact, standardized JSON
+Extraction results
 
-Optionally includes the full raw report
 
-🧠 How the Analysis Pipeline Works
+Parsed email components
 
-The system follows a strict multi-phase approach:
 
-1. Extraction Phase
+Detection flags
 
-📌 Implemented in: extraction.py
 
-Converts any payload to bytes
+Scoring summary
 
-Reads .eml message structure
 
-Extracts raw headers, body parts, attachments
 
-Collects all URLs, emails, IPs
+🌐 API Layer
+Implemented in:
 
-Example output:
-
-{
-  "text_parts": ["Please reset your password."],
-  "raw_links": ["https://attacker.com/reset"],
-  "attachments": [{ "filename": "invoice.pdf", "content_type": "application/pdf" }]
-}
-
-2. Parsing Phase
-
-📌 Implemented in: parsing.py
-
-Extracts structured objects:
-
-Sender domains
-
-SPF/DKIM/DMARC fields
-
-Normalized links (href, absolute URL, text-domain)
-
-Attachment metadata
-
-Example output:
-
-{
-  "headers": { "from_domain": "attacker.com" },
-  "body": { "links": [ { "absolute_domain": "attacker.com" } ] },
-  "auth": { "spf": "fail", "dkim": "fail" }
-}
-
-3. Detection Phase
-
-📌 Implemented in: detection.py
-
-Applies multiple heuristics:
-
-detect_suspicious_links
-
-detect_header_forgery
-
-detect_display_name_spoofing
-
-detect_typosquatting
-
-detect_html_forms
-
-detect_clickable_images
-
-detect_social_engineering_language
-
-…and more
-
-Example:
-
-{
-  "suspicious_links": [{ "reason": "domain_not_allowed" }],
-  "header_issues": ["header_domain_mismatch"],
-  "extra_flags": {
-    "anchor_redirect": [...],
-    "typosquatting": [...]
-  }
-}
-
-4. Scoring Phase
-
-📌 Implemented in: calc_score.py
-
-Counts number of hits per category
-
-Multiplies by predefined weights
-
-Normalizes score into 0–100
-
-Selects verdict
-
-Example:
-
-{
-  "score": 92.5,
-  "verdict": "malicious"
-}
-
-5. Orchestration Phase
-
-📌 Implemented in: orchestration.py
-
-Connects all phases:
-
-Extraction → Parsing → Detection → Scoring
-
-
-Returns final structured report.
-
-6. Services + API Layer
-
-📌 Implemented in:
-
-services.py
 
 route.py
 
+
+services.py
+
+
 extension.py
 
-Exposes REST endpoints:
 
-POST /tools/Phishing-email/eml-scan
+REST Endpoints
+MethodEndpointDescriptionPOST/tools/Phishing-email/text-scanScan raw email textPOST/tools/Phishing-email/eml-scanUpload and scan .eml filePOST/tools/Phishing-email/ext-scanExternal scan (Gmail/Outlook)
 
-Upload .eml via multipart/form-data.
-
-POST /tools/Phishing-email/text-scan
-
-Send raw email content as text.
-
-📡 API Examples
-Scan EML File
-
-Request
-
+📡 Example API Usage
+1. Upload and Scan a .eml File
 curl -X POST \
   -H "Authorization: Bearer <token>" \
-  -F "eml=@email.eml" \
-  https://yourserver/tools/Phishing-email/eml-scan
+  -F "eml=@example.eml" \
+  https://your-api/tools/Phishing-email/eml-scan
 
-
-Response
-
+2. Example JSON Response
 {
   "sender": "support@attacker.com",
-  "subject": "Urgent!",
+  "subject": "Urgent Account Verification",
   "status": "malicious",
   "score": 92.5,
   "links": 3,
   "attachments": 1,
-  "findings": {...},
+  "findings": {
+    "suspicious_links": [...],
+    "header_issues": [...],
+    "risky_attachments": [...],
+    "extra_flags": {...}
+  },
   "raw_report": {...}
 }
 
-🧪 Testing – Email Simulation Guide
 
-The Email Simulation Team must prepare three .eml test emails:
-
+🧪 Testing Requirements (Email Simulation Team)
+Prepare three .eml files to verify full detector coverage.
 1. Malicious Email
+Include:
 
-Should include:
 
-Spoofed sender name
+Spoofed branding (e.g., “PayPal Security”)
 
-Mismatched From/Return-Path
+
+Header inconsistencies (From ≠ Return-Path)
+
 
 SPF/DKIM/DMARC failures
 
-Typosquatted domains (paypa1.com)
 
-Double-extension attachments (invoice.pdf.exe)
+Typosquatted domain (paypa1.com)
 
-Urgent language
 
-Fake login HTML form
+Dangerous attachment (invoice.pdf.exe)
 
-Clickable image links
 
-Expected verdict: malicious
+HTML login form
+
+
+Clickable image redirect
+
+
+Urgent or coercive language
+
+
+Expected: malicious
 
 2. Suspicious Email
+Include:
 
-Should include:
 
-One mismatched link
+One suspicious redirect
 
-Slightly coercive wording
 
-No dangerous attachment
+Mild coercive text
 
-Expected verdict: suspicious
+
+No harmful attachments
+
+
+Expected: suspicious
 
 3. Safe Email
-
-Should include:
-
-Real matching headers
-
-SPF/DKIM/DMARC pass
-
-No suspicious links
-
-No attachments or safe attachments
-
-Expected verdict: safe
-
-🛠️ Running the Backend
-Requirements
-
-Python 3.10+
-
-Flask / Flask-RESTX
-
-JWT module
-
-BeautifulSoup4
-
-Install dependencies:
-
-pip install -r requirements.txt
+Include:
 
 
-Run the API server:
+Matching headers
 
-python main.py
 
-🖥️ Frontend Integration
+Clean authentication results
 
+
+No suspicious links or language
+
+
+No risky attachments
+
+
+Expected: safe
+
+🖥️ Frontend Responsibilities
 The frontend should:
 
-✔ Allow users to upload .eml files
-✔ Call the /eml-scan endpoint
-✔ Display:
 
-Sender
+Support .eml upload via drag-and-drop or file picker
 
-Subject
 
-Verdict and Score
+Use the /eml-scan endpoint
+
+
+Display:
+
+
+Risk score
+
+
+Verdict
+
+
+Sender information
+
 
 Suspicious links
 
+
 Header issues
+
 
 Risky attachments
 
-Extra flags
-✔ Provide raw JSON viewer
-✔ Store scan history locally
+
+Additional flags
+
+
+Expandable raw JSON
+
+
+
+
+Store recent scan history locally
+
+
+
+🛠️ Running the Backend Locally
+1. Install Dependencies
+pip install -r requirements.txt
+
+2. Start the Server
+python main.py
+
 
 🤝 Contributing
+To contribute:
+
 
 Fork the repository
 
+
 Create a feature branch
 
-Follow PEP-8 style
 
-Add unit tests for new detectors
+Commit changes
+
+
+Follow PEP-8 standards
+
 
 Submit a pull request
 
-📄 License
 
-This project is part of the academic work:
-EGuard – Email Phishing Analysis and Detection
+
+📄 License
+This project is part of the academic cybersecurity work:
+“EGuard – Email Phishing Analysis and Detection”
+
+  
+**Q1:**  
+**How can I extend the scoring engine to include machine-learning-based features?**  
+
+**Q2:**  
+**What steps should I follow to containerize this backend with Docker and Docker Compose?**  
+
+**Q3:**  
+**How can I enhance the API to support batch scanning of multiple `.eml` files at once?**
