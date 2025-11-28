@@ -1,5 +1,7 @@
 ## 📌 Overview
-EGuard is a multi-stage phishing-email analysis framework that processes `.eml` files, extracts and parses email content, evaluates heuristic indicators, computes a weighted risk score (0–100), and produces a structured JSON report. The system identifies a wide spectrum of malicious behaviors, including:
+
+EGuard is a multi-stage phishing-email analysis framework that processes `.eml` files, extracts and parses email content, evaluates heuristic indicators, computes a weighted risk score (0–100), and produces a structured JSON report.  
+The system identifies a wide spectrum of malicious behaviors, including:
 
 - Spoofed sender identities  
 - Malicious redirects  
@@ -16,28 +18,20 @@ This work is part of the academic cybersecurity project **“EGuard – Email Ph
 
 ## 📁 Repository Structure
 
-
+```
 phishing_email_analyzer/
 backend/
-
+│
 ├── calc_score.py        # Phase 4: scoring system and risk verdicts
-
 ├── detection.py         # Phase 3: heuristic detection rules
-
 ├── extraction.py        # Phase 1: raw email extraction
-
 ├── parsing.py           # Phase 2: header, body, and link parsing
-
 ├── orchestration.py     # Full analysis pipeline coordinator
-
 ├── services.py          # API service layer for scan endpoints
-
 ├── route.py             # REST API endpoints
-
 ├── extension.py         # Additional external scan endpoints
-
 └── __init__.py          # Package initializer
-
+```
 
 ---
 
@@ -45,9 +39,9 @@ backend/
 
 EGuard operates through a structured four-phase pipeline:
 
-1. **Extraction**
-2. **Parsing**
-3. **Detection**
+1. **Extraction**  
+2. **Parsing**  
+3. **Detection**  
 4. **Scoring**
 
 The **orchestration** layer connects each phase and generates the final JSON report.
@@ -110,50 +104,53 @@ Responsibilities:
 ## 🔗 Pipeline Orchestration  
 **File:** `orchestration.py`
 
-Use:
+Usage example:
+
 ```python
 report = analyze_phishing_email(source)
+```
 
 The final report includes:
 
+- Extraction results  
+- Parsed email components  
+- Detection flags  
+- Scoring summary  
 
-Extraction results
+---
 
+## 🌐 API Layer
 
-Parsed email components
-
-
-Detection flags
-
-
-Scoring summary
-
-
-
-🌐 API Layer
 Implemented in:
 
+- `route.py`  
+- `services.py`  
+- `extension.py`  
 
-route.py
+### **REST Endpoints**
 
+| Method | Endpoint                                  | Description                    |
+|--------|--------------------------------------------|--------------------------------|
+| POST   | `/tools/Phishing-email/text-scan`          | Scan raw text email            |
+| POST   | `/tools/Phishing-email/eml-scan`           | Upload and scan `.eml` file    |
+| POST   | `/tools/Phishing-email/ext-scan`           | External scan (Gmail/Outlook)  |
 
-services.py
+---
 
+## 📡 Example API Usage
 
-extension.py
+### **1. Upload and Scan a .eml File**
 
-
-REST Endpoints
-MethodEndpointDescriptionPOST/tools/Phishing-email/text-scanScan raw email textPOST/tools/Phishing-email/eml-scanUpload and scan .eml filePOST/tools/Phishing-email/ext-scanExternal scan (Gmail/Outlook)
-
-📡 Example API Usage
-1. Upload and Scan a .eml File
+```bash
 curl -X POST \
   -H "Authorization: Bearer <token>" \
   -F "eml=@example.eml" \
   https://your-api/tools/Phishing-email/eml-scan
+```
 
-2. Example JSON Response
+### **2. Example JSON Response**
+
+```json
 {
   "sender": "support@attacker.com",
   "subject": "Urgent Account Verification",
@@ -169,144 +166,104 @@ curl -X POST \
   },
   "raw_report": {...}
 }
+```
 
+---
 
-🧪 Testing Requirements (Email Simulation Team)
-Prepare three .eml files to verify full detector coverage.
-1. Malicious Email
+## 🧪 Testing Requirements (Email Simulation Team)
+
+Prepare **three `.eml` files** to verify full detector coverage.
+
+---
+
+### **1. Malicious Email**
+
 Include:
 
+- Spoofed branding (e.g., “PayPal Security”)  
+- Header inconsistencies (From ≠ Return-Path)  
+- SPF/DKIM/DMARC failures  
+- Typosquatted domain (`paypa1.com`)  
+- Dangerous attachment (`invoice.pdf.exe`)  
+- HTML login form  
+- Clickable image redirect  
+- Urgent or coercive language  
 
-Spoofed branding (e.g., “PayPal Security”)
+**Expected:** `malicious`
 
+---
 
-Header inconsistencies (From ≠ Return-Path)
+### **2. Suspicious Email**
 
-
-SPF/DKIM/DMARC failures
-
-
-Typosquatted domain (paypa1.com)
-
-
-Dangerous attachment (invoice.pdf.exe)
-
-
-HTML login form
-
-
-Clickable image redirect
-
-
-Urgent or coercive language
-
-
-Expected: malicious
-
-2. Suspicious Email
 Include:
 
+- One suspicious redirect  
+- Mild coercive text  
+- No harmful attachments  
 
-One suspicious redirect
+**Expected:** `suspicious`
 
+---
 
-Mild coercive text
+### **3. Safe Email**
 
-
-No harmful attachments
-
-
-Expected: suspicious
-
-3. Safe Email
 Include:
 
+- Matching headers  
+- Clean authentication results  
+- No suspicious links or language  
+- No risky attachments  
 
-Matching headers
+**Expected:** `safe`
 
+---
 
-Clean authentication results
+## 🖥️ Frontend Responsibilities
 
-
-No suspicious links or language
-
-
-No risky attachments
-
-
-Expected: safe
-
-🖥️ Frontend Responsibilities
 The frontend should:
 
+- Support `.eml` upload (drag-and-drop or file picker)  
+- Use the `/eml-scan` endpoint  
+- Display:  
+  - Risk score  
+  - Verdict  
+  - Sender information  
+  - Suspicious links  
+  - Header issues  
+  - Risky attachments  
+  - Additional flags  
+  - Expandable raw JSON  
+- Store recent scan history locally  
 
-Support .eml upload via drag-and-drop or file picker
+---
 
+## 🛠️ Running the Backend Locally
 
-Use the /eml-scan endpoint
-
-
-Display:
-
-
-Risk score
-
-
-Verdict
-
-
-Sender information
-
-
-Suspicious links
-
-
-Header issues
-
-
-Risky attachments
-
-
-Additional flags
-
-
-Expandable raw JSON
-
-
-
-
-Store recent scan history locally
-
-
-
-🛠️ Running the Backend Locally
-1. Install Dependencies
+### **1. Install Dependencies**
+```bash
 pip install -r requirements.txt
+```
 
-2. Start the Server
+### **2. Start the Server**
+```bash
 python main.py
+```
 
+---
 
-🤝 Contributing
+## 🤝 Contributing
+
 To contribute:
 
+1. Fork the repository  
+2. Create a feature branch  
+3. Commit changes  
+4. Follow PEP-8 standards  
+5. Submit a pull request  
 
-Fork the repository
+---
 
+## 📄 License
 
-Create a feature branch
-
-
-Commit changes
-
-
-Follow PEP-8 standards
-
-
-Submit a pull request
-
-
-
-📄 License
-This project is part of the academic cybersecurity work:
-“EGuard – Email Phishing Analysis and Detection”
+This project is part of the academic cybersecurity work:  
+**“EGuard – Email Phishing Analysis and Detection.”**
