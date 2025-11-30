@@ -1,11 +1,9 @@
 import api from "./axios";
 import { apiBaseUrl } from "./axios";
-import { encryptJsonPayload, resetEncryptionCache, } from "./encryption";
+import { encryptJsonPayload, resetEncryptionCache } from "./encryption";
 
 export const API_PATHS = {
-  signup: "/auth/signup",
   login: "/auth/login",
-  users: "/user/users",
 };
 
 export const parseApiError = (error) => {
@@ -27,28 +25,6 @@ export const parseApiError = (error) => {
   return "An unexpected error occurred";
 };
 
-export async function registerUser(userData) {
-  let encryptedPayload;
-  try {
-    encryptedPayload = await encryptJsonPayload(userData);
-  } catch (cryptoError) {
-    console.error("Encryption setup failed:", cryptoError);
-    throw new Error("Unable to secure signup request. Please refresh and retry.");
-  }
-
-  try {
-    const response = await api.post(API_PATHS.signup, encryptedPayload);
-    return response.data;
-  } catch (error) {
-    console.error("Registration failed:", error);
-    const parsed = parseApiError(error);
-    if (error.response?.status === 400 && /decrypt/i.test(parsed)) {
-      resetEncryptionCache();
-    }
-    throw new Error(parsed);
-  }
-}
-
 export async function loginUser(credentials) {
   let encryptedPayload;
   try {
@@ -68,46 +44,6 @@ export async function loginUser(credentials) {
       resetEncryptionCache();
     }
     throw new Error(parsed);
-  }
-}
-
-export async function getAllUsers() {
-  try {
-    const response = await api.get(API_PATHS.users);
-    return response.data;
-  } catch (error) {
-    console.error("Fetching users failed:", error);
-    throw new Error(parseApiError(error));
-  }
-}
-
-export async function getUserById(id) {
-  try {
-    const response = await api.get(`${API_PATHS.users}/${id}`);
-    return response.data;
-  } catch (error) {
-    console.error(`Fetching user ${id} failed:`, error);
-    throw new Error(parseApiError(error));
-  }
-}
-
-export async function updateUser(id, data) {
-  try {
-    const response = await api.put(`${API_PATHS.users}/${id}`, data);
-    return response.data;
-  } catch (error) {
-    console.error(`Updating user ${id} failed:`, error);
-    throw new Error(parseApiError(error));
-  }
-}
-
-export async function deleteUser(id) {
-  try {
-    const response = await api.delete(`${API_PATHS.users}/${id}`);
-    return response.data;
-  } catch (error) {
-    console.error(`Deleting user ${id} failed:`, error);
-    throw new Error(parseApiError(error));
   }
 }
 

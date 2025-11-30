@@ -233,7 +233,6 @@ The frontend should:
   - Risky attachments  
   - Additional flags  
   - Expandable raw JSON  
-- Store recent scan history locally  
 
 ---
 

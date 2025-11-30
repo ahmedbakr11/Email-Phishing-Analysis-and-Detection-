@@ -87,10 +87,6 @@
   margin-top: 1.4rem;
 }
 
-.phish-card--history {
-  margin-top: 1.2rem;
-}
-
 .phish-card__header {
   display: flex;
   justify-content: space-between;
@@ -1346,6 +1342,24 @@
 .phish-link-title,
 .risk-score__label,
 .hint-title {
+  color: #ffffff;
+}
+
+.phish-summary__label,
+.phish-summary__value,
+.phish-collapsible__trigger,
+.phish-collapsible__title,
+.phish-collapsible__hint,
+.phish-collapsible__icon {
+  color: #ffffff;
+}
+
+.phish-collapsible__icon {
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.phish-card--result .phish-card__title,
+.phish-card--result .phish-card__description {
   color: #ffffff;
 }
 

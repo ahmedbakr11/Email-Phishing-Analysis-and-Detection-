@@ -32,7 +32,7 @@ const MailIcon = () => (
 function Header() {
   const navigate = useNavigate();
   const [user, setUser] = useState(null);
-  const userInitial = (user?.fullname || user?.full_name || user?.username || "A")
+  const userInitial = (user?.fullname || user?.full_name || user?.username || "Admin")
     .toString()
     .trim()
     .charAt(0)
@@ -47,8 +47,7 @@ function Header() {
       }
       const parsed = JSON.parse(raw);
       if (parsed) {
-        parsed.role = parsed.role || "user";
-        parsed.fullname = parsed.fullname || parsed.full_name || "";
+        parsed.fullname = parsed.fullname || parsed.full_name || "Admin";
       }
       setUser(parsed);
     } catch {
@@ -135,21 +134,15 @@ function Header() {
                     <span className="nav-avatar" aria-hidden="true">{userInitial}</span>
                     <span className="text-end nav-user d-inline-flex flex-column align-items-end">
                       <span className="nav-user__name">
-                        {user ? `Welcome, ${user.fullname?.trim() || user.full_name?.trim() || user.username || "guest"}` : "Welcome, guest"}
+                        {user ? `Welcome, ${user.fullname?.trim() || user.full_name?.trim() || user.username || "Admin"}` : "Welcome, Admin"}
                       </span>
                       <span className="nav-user__role">
-                        {(user?.role || "user").toLowerCase() === "admin" ? "Admin" : "User"}
+                        Admin
                       </span>
                     </span>
                   </span>
                 </a>
                 <ul className="dropdown-menu dropdown-menu-end tools-dropdown">
-                  <li>
-                    <NavLink className={({ isActive }) => `dropdown-item ${isActive ? "active" : ""}`} to="/profile">
-                      Profile
-                    </NavLink>
-                  </li>
-                  <li><hr className="dropdown-divider" /></li>
                   <li>
                     <button type="button" className="dropdown-item" onClick={handleLogout}>
                       Logout

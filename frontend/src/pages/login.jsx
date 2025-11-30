@@ -1,10 +1,10 @@
 ﻿// Login.jsx
 import React, { useEffect, useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { Form } from "react-bootstrap";
 import logoLogin from "../assets/logo-login.png";
-import { loginUser, getUserById } from "../api/index.js";
+import { loginUser } from "../api/index.js";
 import { prefetchEncryptionKey } from "../api/encryption.js";
 import {
   ACCESS_TOKEN_KEY,
@@ -39,35 +39,27 @@ function Login() {
         localStorage.setItem(REFRESH_TOKEN_KEY, result.refresh_token);
       }
 
-      let persistedUser = null;
-      if (result?.user) {
-        persistedUser = {
-          ...result.user,
-          role: result.user.role || "user",
-        };
-        try {
-          if (persistedUser.id) {
-            const userDetails = await getUserById(persistedUser.id);
-            persistedUser = {
-              ...persistedUser,
-              fullname: userDetails.fullname || persistedUser.fullname,
-            };
+      const persistedUser = result?.user
+        ? {
+            id: result.user.id,
+            username: result.user.username,
+            role: "admin",
+            fullname: result.user.fullname || "Admin",
           }
-        } catch (fetchError) {
-          console.warn("Failed to sync full name after login:", fetchError);
-        }
-      }
+        : {
+            username: data.username,
+            role: "admin",
+            fullname: "Admin",
+          };
 
-      if (persistedUser) {
-        localStorage.setItem(
-          USER_STORAGE_KEY,
-          JSON.stringify({
-            ...persistedUser,
-            fullname: persistedUser.fullname || persistedUser.username || data.username,
-          })
-        );
-        window.dispatchEvent(new Event(USER_UPDATED_EVENT));
-      }
+      localStorage.setItem(
+        USER_STORAGE_KEY,
+        JSON.stringify({
+          ...persistedUser,
+          fullname: persistedUser.fullname || persistedUser.username || "Admin",
+        })
+      );
+      window.dispatchEvent(new Event(USER_UPDATED_EVENT));
       navigate("/analyzer");
     } catch (error) {
       setSubmitError(error.message || "Unable to login. Please try again.");
@@ -153,13 +145,6 @@ function Login() {
               {isSubmitting ? "Signing in..." : "Login"}
             </button>
           </Form>
-          <div style={{ marginTop: "0.75rem", fontSize: ".95rem", color: "#374151" }}>
-          Don't have an account?{" "}
-          <Link to="/register" style={{ color: "#0d9488", fontWeight: 600, textDecoration: "none" }}>
-            Register here
-          </Link>
-          .
-        </div>
       </div>
       </div>
     </div>

@@ -126,26 +126,6 @@ body,
 }
 
 /* History carousel */
-.history-carousel {
-  position: relative;
-  overflow: hidden;
-}
-
-.history-track {
-  display: flex;
-  transition: transform 0.6s ease;
-}
-
-.history-slide {
-  flex: 0 0 100%;
-  padding-inline-end: 0.5rem;
-}
-
-.history-card {
-  background: #ffffff;
-  border-radius: 14px;
-}
-
 .tool-page--phish {
   gap: 1.5rem;
 }
@@ -297,9 +277,6 @@ body,
   padding: 2.5rem 2.25rem;
 }
 
-/* Compact variant for register page */
-.register-card { max-width: 20rem; padding: 1.5rem 1.25rem; }
-
 /* Inline success message */
 .success-message {
   margin-bottom: 0.75rem;
@@ -310,9 +287,6 @@ body,
   font-weight: 600;
   border: 1px solid color-mix(in oklab, var(--accent-success) 30%, white);
 }
-
-/* Side-by-side inline success next to register card */
-.success-inline { margin: 0; max-width: 18rem; text-align: center; }
 
 /* Subtle entrance animation */
 .fade-in-up { animation: fadeInUp 300ms ease-out; }

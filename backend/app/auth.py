@@ -1,6 +1,6 @@
 from flask import request
 from flask_restx import Resource, Namespace, fields
-from werkzeug.security import generate_password_hash, check_password_hash
+from werkzeug.security import check_password_hash
 from flask_jwt_extended import (
     create_access_token,
     create_refresh_token,
@@ -40,37 +40,7 @@ class SignUp(Resource):
 
     @auth_ns.expect(signup_model)
     def post(self):
-        data = request.get_json() or {}
-
-        try:
-            decrypt_sensitive_fields(
-                data,
-                ("fullname", "username", "email", "password"),
-            )
-        except DecryptionError:
-            return ({"error": "Unable to decrypt credentials"}), 400
-        fullname = data.get("fullname")
-        username = data.get("username")
-        email = data.get("email")
-        password = generate_password_hash(data.get("password"))
-
-        if User.query.filter(User.username == username).first():
-            return ({"error": "User already exists"}), 409
-
-        if User.query.filter(User.email == email).first():
-            return ({"error": "Email already exists"}), 409
-
-        if not username or not email or not password or not fullname:
-            return ({"error": "Missing fields"}), 400
-
-        new_user = User(
-            fullname=data.get("fullname"),
-            username=data.get("username"),
-            email=data.get("email"),
-            password=generate_password_hash(data.get("password")),
-        )
-        new_user.save()
-        return ({"message": "User created successfully"}), 201
+        return {"error": "User registration is disabled (admin-only mode)"}, 403
 
 
 ###################################################################################
@@ -119,6 +89,9 @@ class LoginResource(Resource):
             return {"message": msg}, status
 
         db_user.reset_login_state()
+
+        if (db_user.role or "").lower() != "admin":
+            return {"message": "Admin access only"}, 403
 
         claims = {"role": db_user.role}
         access_token = create_access_token(

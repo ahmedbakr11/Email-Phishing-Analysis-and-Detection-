@@ -1,7 +1,6 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import Header from "../components/header.jsx";
 import api from "../api/axios";
-import { addHistoryEntry } from "../utils/history.js";
 import "../styles/phishing-email-analyzer.css";
 
 
@@ -305,33 +304,10 @@ const UploadCard = ({ selectedFile, onSelectFile, onUpload, isLoading, error, on
           <p className="eyebrow">Premium phishing defense</p>
           <div className="hero-title-row">
             <h1 className="tool-page__title">Phishing Email Analyzer</h1>
-            <span className="status-chip status-chip--live">
-              <span className="status-chip__dot" aria-hidden="true" />
-              Live monitor
-            </span>
           </div>
           <p className="tool-page__description phish-lede">
             Upload or drag-and-drop a .eml file to inspect headers, links, and attachments with a calm, guided triage workflow.
           </p>
-          <div className="hero-inline">
-            <span className="status-chip status-chip--success">
-              <span className="status-chip__dot" aria-hidden="true" />
-              Real-time spoof checks
-            </span>
-            <span className="status-chip status-chip--neutral">.eml only</span>
-            <span className="status-chip status-chip--soft">No third-party sharing</span>
-          </div>
-        </div>
-        <div className="phish-hero-note">
-          <div className="hero-note__icon">
-            <SparkIcon />
-          </div>
-          <div className="hero-note__copy">
-            <p className="hero-note__title">Trusted signals</p>
-            <p className="hero-note__text">
-              Real-time checks for spoofed headers, malicious attachments, redirect tricks, and typosquatting domains.
-            </p>
-          </div>
         </div>
       </div>
 
@@ -363,7 +339,7 @@ const UploadCard = ({ selectedFile, onSelectFile, onUpload, isLoading, error, on
             <div className="drop-pill-row">
               <span className="chip chip-soft">Drag & drop</span>
               <span className="chip chip-muted">Max 25 MB</span>
-              <span className="chip chip-muted">Message/RFC822</span>
+              <span className="chip chip-muted">.eml files only</span>
             </div>
           </div>
           <div className="drop-cta">
@@ -378,7 +354,6 @@ const UploadCard = ({ selectedFile, onSelectFile, onUpload, isLoading, error, on
             >
               Browse file
             </button>
-            <span className="drop-hint">or press space to open file picker</span>
           </div>
           <input
             ref={inputRef}
@@ -390,24 +365,17 @@ const UploadCard = ({ selectedFile, onSelectFile, onUpload, isLoading, error, on
           />
         </div>
 
-        <div className="phish-hints">
-          <div className="hint-card">
-            <div className="hint-title">What we check</div>
-            <ul className="hint-list">
-              <li>SPF / DKIM / DMARC alignment</li>
-              <li>Redirect chains & mismatched anchors</li>
-              <li>Risky extensions & suspicious hashes</li>
-            </ul>
-            <div className="hint-pills">
-              <span className="status-chip status-chip--soft">
-                <span className="status-chip__dot" aria-hidden="true" />
-                Secure channel
-              </span>
-              <span className="status-chip status-chip--neutral">Local history only</span>
+          <div className="phish-hints">
+            <div className="hint-card">
+              <div className="hint-title">What we check</div>
+              <ul className="hint-list">
+                <li>SPF / DKIM / DMARC alignment</li>
+                <li>Redirect chains & mismatched anchors</li>
+                <li>Risky extensions & suspicious hashes</li>
+              </ul>
             </div>
           </div>
         </div>
-      </div>
 
       {selectedFile && (
         <div className="phish-file-preview">
@@ -442,7 +410,6 @@ const UploadCard = ({ selectedFile, onSelectFile, onUpload, isLoading, error, on
       )}
 
       <div className="phish-upload-footer">
-        <div className="phish-meta">Validates SPF, DKIM, DMARC · Flags redirects · Scores links, headers, and attachments.</div>
         {isLoading && <Loader />}
         {error && (
           <div className="form-error phish-error" role="alert">
@@ -1275,13 +1242,6 @@ function PhishingAnalyzer() {
       const data = await uploadEmail(selectedFile);
 
       setReport(data);
-
-      addHistoryEntry({
-        tool: "Phishing Email Analyzer",
-        date: new Date().toISOString(),
-        risk: data?.score ?? 0,
-        status: data?.status || "review",
-      });
 
       setCollapseKey((k) => k + 1);
 
