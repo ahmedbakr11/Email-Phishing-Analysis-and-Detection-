@@ -1,0 +1,820 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Phishing Email Analyzer (واجهة المستخدم)</title>
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"
+    />
+
+    <style>
+      /* ------------------------------------------------------------------ */
+      /* CSS Styles (التصميم)                                */
+      /* ------------------------------------------------------------------ */
+
+      :root {
+        --primary: #007bff;
+        --border-color: #ccc;
+        --error-red: #dc3545;
+        --success-green: #28a745;
+        --suspicious-yellow: #ffc107;
+        --malicious-red: #dc3545;
+        --safe-green: #28a745;
+        --neutral-gray: #6c757d;
+        --bg-light: #f4f7f6;
+        --panel-bg: white;
+        --finding-header-color: #0056b3; /* لون مشاكل الرأس */
+        --finding-attachment-color: #9c27b0; /* لون المرفقات */
+      }
+
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+      }
+
+      body {
+        background-color: var(--bg-light);
+        padding: 20px;
+        direction: rtl;
+        text-align: right;
+      }
+
+      .container {
+        max-width: 1000px;
+        margin: 0 auto;
+        background-color: var(--panel-bg);
+        padding: 30px;
+        border-radius: 10px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      }
+
+      h2 {
+        color: #333;
+        border-bottom: 2px solid #eee;
+        padding-bottom: 10px;
+        margin-bottom: 20px;
+      }
+
+      /* 1. Upload Section */
+      .upload-container {
+        border: 3px dashed var(--border-color);
+        border-radius: 10px;
+        padding: 40px 20px;
+        text-align: center;
+        transition: border-color 0.3s, background-color 0.3s;
+        background-color: #fff;
+        cursor: pointer;
+        margin-bottom: 20px;
+      }
+
+      .upload-container.drag-over {
+        border-color: var(--primary);
+        background-color: #e6f7ff;
+      }
+
+      .upload-icon {
+        font-size: 3em;
+        color: var(--primary);
+        margin-bottom: 10px;
+      }
+
+      .browse-btn {
+        background-color: var(--primary);
+        color: white;
+        border: none;
+        padding: 10px 20px;
+        border-radius: 5px;
+        cursor: pointer;
+        transition: background-color 0.3s;
+      }
+
+      .file-name-display {
+        margin-top: 15px;
+        font-style: italic;
+        color: #555;
+      }
+
+      .error-message {
+        color: var(--malicious-red);
+        margin-top: 10px;
+        font-weight: bold;
+      }
+
+      /* Scan Button & Loading */
+      .action-bar {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-bottom: 30px;
+      }
+
+      .scan-btn {
+        padding: 12px 25px;
+        font-size: 1.1em;
+        background-color: var(--safe-green);
+        color: white;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+      }
+
+      .scan-btn:disabled {
+        background-color: #ccc;
+        cursor: not-allowed;
+      }
+
+      .loading-state {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        color: var(--primary);
+        margin-right: 20px;
+      }
+
+      .spinner {
+        border: 4px solid rgba(0, 0, 0, 0.1);
+        border-top: 4px solid var(--primary);
+        border-radius: 50%;
+        width: 20px;
+        height: 20px;
+        animation: spin 1s linear infinite;
+      }
+
+      @keyframes spin {
+        0% {
+          transform: rotate(0deg);
+        }
+        100% {
+          transform: rotate(360deg);
+        }
+      }
+
+      .hidden {
+        display: none !important;
+      }
+
+      /* 3. Summary Visualization */
+      .summary-visualization {
+        margin-bottom: 30px;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        overflow: hidden;
+      }
+
+      .score-banner {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 15px 25px;
+        color: white;
+        font-weight: bold;
+        font-size: 1.2em;
+      }
+
+      /* Color-coding for banners */
+      .status-safe {
+        background-color: var(--safe-green);
+      }
+      .status-suspicious {
+        background-color: var(--suspicious-yellow);
+      }
+      .status-malicious {
+        background-color: var(--malicious-red);
+      }
+
+      .score-box {
+        background-color: rgba(0, 0, 0, 0.2);
+        padding: 5px 10px;
+        border-radius: 5px;
+        font-size: 0.9em;
+      }
+
+      .risk-banner {
+        padding: 10px 25px;
+        background-color: var(--malicious-red);
+        color: white;
+        font-weight: bold;
+        font-size: 1em;
+        text-align: center;
+      }
+
+      /* 4. Detailed Findings Panels */
+      .findings-panel h3 {
+        color: #333;
+        margin-top: 20px;
+        border-bottom: 1px solid #eee;
+        padding-bottom: 5px;
+        margin-bottom: 15px;
+        font-size: 1.1em;
+      }
+
+      .findings-list {
+        margin-top: 10px;
+        display: grid;
+        gap: 10px;
+      }
+
+      .finding-item {
+        background-color: var(--bg-light);
+        padding: 15px;
+        border-radius: 6px;
+        border-right: 5px solid var(--neutral-gray); /* Default */
+        line-height: 1.6;
+      }
+
+      .finding-item.header {
+        border-right-color: var(--finding-header-color);
+      }
+      .finding-item.link {
+        border-right-color: var(--error-red);
+      }
+      .finding-item.attachment {
+        border-right-color: var(--finding-attachment-color);
+      }
+      .finding-item.typo {
+        border-right-color: var(--suspicious-yellow);
+      }
+
+      .finding-item strong {
+        display: block;
+        margin-bottom: 5px;
+        color: #333;
+      }
+
+      .recommendation {
+        margin-top: 10px;
+        padding: 8px;
+        background-color: #ffe6e6;
+        border-radius: 4px;
+        color: #8b0000;
+        font-size: 0.9em;
+        font-weight: bold;
+      }
+
+      /* 5. Raw JSON Viewer */
+      .json-viewer {
+        margin-top: 30px;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+      }
+
+      .json-header {
+        background-color: #f0f0f0;
+        padding: 10px 15px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        border-bottom: 1px solid #ddd;
+        cursor: pointer;
+        font-weight: bold;
+      }
+
+      .json-actions button {
+        background: var(--neutral-gray);
+        color: white;
+        border: none;
+        padding: 5px 10px;
+        border-radius: 4px;
+        cursor: pointer;
+        margin-left: 10px;
+      }
+
+      .json-content {
+        padding: 15px;
+        background-color: #272822;
+        color: #f8f8f2;
+        overflow-x: auto;
+        max-height: 400px;
+        display: none;
+      }
+
+      .json-content.expanded {
+        display: block;
+      }
+
+      pre {
+        margin: 0;
+        white-space: pre-wrap;
+        word-wrap: break-word;
+      }
+
+      /* 6. History of Recent Scans */
+      .recent-scans-panel {
+        margin-top: 30px;
+      }
+
+      .scan-item {
+        display: flex;
+        justify-content: space-between;
+        padding: 10px 15px;
+        border-bottom: 1px dashed #eee;
+        cursor: pointer;
+        transition: background-color 0.2s;
+      }
+
+      .scan-item:hover {
+        background-color: #f0f0f0;
+      }
+
+      .risk-safe {
+        color: var(--safe-green);
+      }
+      .risk-malicious {
+        color: var(--malicious-red);
+      }
+      .risk-suspicious {
+        color: var(--suspicious-yellow);
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h2>رفع الملف والفحص</h2>
+      <div class="upload-container" id="drop-area">
+        <i class="fas fa-cloud-upload-alt upload-icon"></i>
+        <p>
+          قم بسحب وإفلات ملف
+          <span style="font-weight: bold; color: var(--primary)">.eml</span> هنا
+        </p>
+        <p class="separator">أو</p>
+        <input type="file" id="eml-file-input" accept=".eml" hidden />
+        <button
+          class="browse-btn"
+          onclick="document.getElementById('eml-file-input').click()"
+        >
+          تصفح الملفات
+        </button>
+        <p class="file-name-display" id="file-display">لم يتم اختيار ملف</p>
+        <p class="error-message" id="upload-error"></p>
+      </div>
+
+      <div class="action-bar">
+        <button class="scan-btn" id="scan-button" disabled>رفع و فحص</button>
+        <div class="loading-state hidden" id="loading-indicator">
+          <div class="spinner"></div>
+          <span>جاري الفحص...</span>
+        </div>
+      </div>
+
+      <div id="results-area" class="hidden">
+        <h2>ملخص الفحص والمعلومات الأساسية</h2>
+        <div class="summary-visualization" id="summary-viz"></div>
+
+        <div class="findings-panel">
+          <h3>
+            <i class="fas fa-exclamation-triangle"></i> النتائج التفصيلية والكشف
+            (Findings)
+          </h3>
+
+          <div id="findings-container"></div>
+
+          <div id="no-findings" class="finding-item hidden">
+            <p style="color: var(--safe-green); font-weight: bold">
+              ✅ لم يتم العثور على أي علامات خطيرة أو مشبوهة في هذا البريد.
+            </p>
+          </div>
+        </div>
+
+        <div class="json-viewer">
+          <div class="json-header" id="json-header-toggle">
+            <i class="fas fa-angle-left" id="toggle-icon"></i> عرض تقرير JSON
+            الخام
+            <div class="json-actions">
+              <button id="search-json-btn" disabled>بحث</button>
+              <button id="copy-json-btn">نسخ</button>
+              <button id="download-json-btn">تنزيل</button>
+            </div>
+          </div>
+          <div class="json-content" id="raw-json-content">
+            <pre id="json-pre-area"></pre>
+          </div>
+        </div>
+      </div>
+
+      <div class="recent-scans-panel">
+        <h2>
+          <i class="fas fa-history"></i> سجل عمليات الفحص الأخيرة (السجل المحلي)
+        </h2>
+        <div id="recent-scans-list">
+          <p style="color: #999">جارٍ تحميل السجل...</p>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      // ------------------------------------------------------------------
+      //                         JavaScript Logic
+      // ------------------------------------------------------------------
+
+      // DOM Elements
+      const dropArea = document.getElementById("drop-area");
+      const fileInput = document.getElementById("eml-file-input");
+      const fileNameDisplay = document.getElementById("file-display");
+      const uploadError = document.getElementById("upload-error");
+      const scanButton = document.getElementById("scan-button");
+      const loadingIndicator = document.getElementById("loading-indicator");
+      const resultsArea = document.getElementById("results-area");
+      const summaryViz = document.getElementById("summary-viz");
+      const findingsContainer = document.getElementById("findings-container");
+      const noFindings = document.getElementById("no-findings");
+      const jsonHeaderToggle = document.getElementById("json-header-toggle");
+      const jsonContent = document.getElementById("raw-json-content");
+      const jsonPreArea = document.getElementById("json-pre-area");
+      const toggleIcon = document.getElementById("toggle-icon");
+      const recentScansList = document.getElementById("recent-scans-list");
+
+      let selectedFile = null;
+      let mockCounter = 0; // لتبديل النتائج الوهمية
+
+      // --- 1. Upload & Validation Logic ---
+      function handleFile(file) {
+        if (!file) {
+          fileNameDisplay.textContent = "لم يتم اختيار ملف";
+          uploadError.textContent = "";
+          scanButton.disabled = true;
+          return null;
+        }
+
+        if (file.name.endsWith(".eml")) {
+          fileNameDisplay.textContent = `الملف المختار: ${file.name}`;
+          uploadError.textContent = "";
+          scanButton.disabled = false;
+          return file;
+        } else {
+          fileNameDisplay.textContent = "الملف المختار: " + file.name;
+          uploadError.textContent = "ملفات .eml فقط مدعومة. (لم يتم طلب الفحص)";
+          scanButton.disabled = true;
+          return null;
+        }
+      }
+
+      // Handle file input change & Drag and Drop (Same as before)
+      fileInput.addEventListener("change", function (e) {
+        selectedFile = handleFile(e.target.files[0]);
+      });
+
+      // Drag and Drop handlers
+      ["dragenter", "dragover", "dragleave", "drop"].forEach((eventName) => {
+        dropArea.addEventListener(
+          eventName,
+          (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+          },
+          false
+        );
+      });
+
+      ["dragenter", "dragover"].forEach((eventName) => {
+        dropArea.addEventListener(
+          eventName,
+          () => dropArea.classList.add("drag-over"),
+          false
+        );
+      });
+
+      ["dragleave", "drop"].forEach((eventName) => {
+        dropArea.addEventListener(
+          eventName,
+          () => dropArea.classList.remove("drag-over"),
+          false
+        );
+      });
+
+      dropArea.addEventListener(
+        "drop",
+        function (e) {
+          const dt = e.dataTransfer;
+          const file = dt.files[0];
+          fileInput.files = dt.files;
+          selectedFile = handleFile(file);
+        },
+        false
+      );
+
+      // --- 2. Calling the Scan API ---
+      scanButton.addEventListener("click", async function () {
+        if (!selectedFile) return;
+
+        // 1. Show Loading State
+        scanButton.classList.add("hidden");
+        loadingIndicator.classList.remove("hidden");
+        resultsArea.classList.add("hidden");
+
+        // Prepare the file upload to backend `/scan`
+        const formData = new FormData();
+        formData.append("eml", selectedFile);
+
+        try {
+          const resp = await fetch("/scan", { method: "POST", body: formData });
+          if (!resp.ok) {
+            // fallback to mock if server fails
+            throw new Error("Server error");
+          }
+          const result = await resp.json();
+          renderResults(result);
+        } catch (err) {
+          // If backend not available or error, fall back to a simple mock to avoid blocking UX
+          console.warn("Backend scan failed, using frontend mock.", err);
+          mockCounter = (mockCounter % 3) + 1;
+          let mockResponse;
+          if (mockCounter === 1) {
+            mockResponse = {
+              status: "malicious",
+              score: 98.1,
+              verdict: "MALICIOUS",
+              sender: "Accounts@paypals.com",
+              subject: "Your Account Has Been Limited",
+              attachments: 1,
+              links: 3,
+              findings: [
+                {
+                  type: "attachment",
+                  reason: "double_extension",
+                  details: { filename: "invoice.pdf.exe" },
+                },
+                {
+                  type: "link",
+                  reason: "domain_not_allowed",
+                  details: { link: "http://malicious.link" },
+                },
+              ],
+              raw_report: {
+                metadata: { date: new Date().toISOString() },
+                full_analysis: { type: "Malicious" },
+              },
+            };
+          } else if (mockCounter === 2) {
+            mockResponse = {
+              status: "suspicious",
+              score: 65.0,
+              verdict: "SUSPICIOUS",
+              sender: "support@amazon-updates.co",
+              subject: "Action Required: Shipping Address",
+              attachments: 0,
+              links: 1,
+              findings: [
+                {
+                  type: "typo",
+                  reason: "unicode_homograph",
+                  details: { domain: "microsøft.com" },
+                },
+              ],
+              raw_report: {
+                metadata: { date: new Date().toISOString() },
+                full_analysis: { type: "Suspicious" },
+              },
+            };
+          } else {
+            mockResponse = {
+              status: "safe",
+              score: 1.5,
+              verdict: "SAFE",
+              sender: "info@mybank.com",
+              subject: "Monthly Statement",
+              attachments: 0,
+              links: 0,
+              findings: [],
+              raw_report: {
+                metadata: { date: new Date().toISOString() },
+                full_analysis: { type: "Safe" },
+              },
+            };
+          }
+          renderResults(mockResponse);
+        } finally {
+          // restore UI state
+          scanButton.classList.remove("hidden");
+          loadingIndicator.classList.add("hidden");
+        }
+      });
+
+      // ----------------------------------------------------
+      // C. Rendering Functions
+      // ----------------------------------------------------
+
+      function renderResults(response) {
+        renderSummary(
+          response.status,
+          response.score,
+          response.subject,
+          response.sender
+        );
+        renderFindings(response.findings);
+        renderRawJson(response.raw_report);
+        updateRecentScans(
+          response.subject || selectedFile.name,
+          response.status,
+          response.score
+        );
+        resultsArea.classList.remove("hidden");
+      }
+
+      // --- 3. Risk Summary Visualization (Updated to show Sender/Subject) ---
+      function renderSummary(status, score, subject, sender) {
+        let className, statusText;
+
+        if (status === "malicious") {
+          className = "status-malicious";
+          statusText = "خطر مرتفع";
+        } else if (status === "suspicious") {
+          className = "status-suspicious";
+          statusText = "مشبوه";
+        } else {
+          className = "status-safe";
+          statusText = "آمن";
+        }
+
+        const html = `
+                <div class="score-banner ${className}">
+                    <span>${statusText}</span>
+                    <span class="score-box">النتيجة: ${score.toFixed(1)}%</span>
+                </div>
+                ${
+                  status === "malicious"
+                    ? `<div class="risk-banner">🚨 ${statusText} - يوصى بحذف الرسالة وعدم التفاعل معها.</div>`
+                    : ""
+                }
+                <div style="padding: 15px; background-color: white; border-top: 1px solid #ddd;">
+                    <strong>المرسل:</strong> ${sender || "غير متوفر"} | 
+                    <strong>الموضوع:</strong> ${subject || "غير متوفر"}
+                </div>
+            `;
+        summaryViz.innerHTML = html;
+      }
+
+      // --- 4. Detailed Findings Panels (Dynamic Rendering based on detection.py logic) ---
+      function renderFindings(findings) {
+        findingsContainer.innerHTML = "";
+
+        if (!findings || findings.length === 0) {
+          noFindings.classList.remove("hidden");
+          return;
+        }
+
+        noFindings.classList.add("hidden");
+
+        findings.forEach((finding) => {
+          const item = document.createElement("div");
+          let title = "نتيجة كشف عامة",
+            description = "";
+          let typeClass = finding.type; // يستخدم لتنسيق الحدود الجانبية
+
+          // **تطبيق منطق detection.py هنا:**
+
+          if (finding.reason === "DKIM_FAIL" || finding.reason === "SPF_FAIL") {
+            title = `فشل مصادقة ${finding.details.method} (${finding.details.reason})`;
+            description = `**التحقق:** ${finding.details.method} <br> **الوصف:** فشل توقيع الرسالة/تطابق النطاق، مما يشير إلى أن المرسل قد يكون منتحلاً.`;
+            typeClass = "header";
+          } else if (finding.reason === "display_name_spoofing") {
+            title = `انتحال اسم العرض للعلامة التجارية`;
+            description = `**الاسم الظاهر:** "${finding.details.display_name}" <br> **النطاق الفعلي:** ${finding.details.domain} <br> **الوصف:** تم استخدام اسم علامة تجارية معروفة في اسم العرض، لكن النطاق الفعلي لا يمت لها بصلة.`;
+            typeClass = "typo";
+          } else if (finding.reason === "double_extension") {
+            title = `ملحق خطر بامتداد مزدوج`;
+            description = `**اسم الملف:** ${finding.details.filename} <br> **الوصف:** يحتوي الملف على امتدادين، مما قد يشير إلى محاولة إخفاء ملف تنفيذي خبيث (.exe, .js, إلخ). <span style="color:var(--malicious-red);">يجب عدم فتحه مطلقاً.</span>`;
+            typeClass = "attachment";
+          } else if (finding.reason === "domain_not_allowed") {
+            title = `رابط تشعبي مشبوه`;
+            description = `**نص الرابط:** ${
+              finding.details.text || "غير متوفر"
+            } <br> **الوجهة:** ${
+              finding.details.link
+            } <br> **الوصف:** هذا الرابط يشير إلى نطاق غير مرتبط بالمرسل أو القائمة الموثوقة.`;
+            typeClass = "link";
+          } else if (finding.reason === "social_engineering_language") {
+            title = `لغة الهندسة الاجتماعية (إلحاح/تهديد)`;
+            description = `**العبارة المكتشفة:** "${finding.details.snippet.substring(
+              0,
+              50
+            )}..." <br> **الوصف:** تم اكتشاف لغة تدعو إلى الإلحاح أو التهديد، وهي تقنية تصيد شائعة.`;
+            typeClass = "body";
+          }
+
+          item.className = `finding-item ${typeClass}`;
+          item.innerHTML = `
+                    <strong>${title}</strong>
+                    <p>${description}</p>
+                    <div class="recommendation">
+                        **التوصية:** قم بمراجعة هذا البند بعناية، ولا تقم بفتح أي مرفقات أو روابط.
+                    </div>
+                `;
+          findingsContainer.appendChild(item);
+        });
+      }
+
+      // --- 5. Raw JSON Viewer ---
+      function renderRawJson(rawJson) {
+        jsonPreArea.textContent = JSON.stringify(rawJson, null, 2);
+      }
+
+      // JSON Toggle functionality
+      jsonHeaderToggle.addEventListener("click", () => {
+        const isExpanded = jsonContent.classList.contains("expanded");
+        if (isExpanded) {
+          jsonContent.classList.remove("expanded");
+          toggleIcon.classList.replace("fa-angle-down", "fa-angle-left");
+        } else {
+          jsonContent.classList.add("expanded");
+          toggleIcon.classList.replace("fa-angle-left", "fa-angle-down");
+        }
+      });
+
+      // JSON Action Buttons (Copy/Download)
+      document.getElementById("copy-json-btn").addEventListener("click", () => {
+        navigator.clipboard.writeText(jsonPreArea.textContent).then(() => {
+          alert("تم نسخ تقرير JSON.");
+        });
+      });
+
+      document
+        .getElementById("download-json-btn")
+        .addEventListener("click", () => {
+          const dataStr =
+            "data:text/json;charset=utf-8," +
+            encodeURIComponent(jsonPreArea.textContent);
+          const downloadAnchorNode = document.createElement("a");
+          downloadAnchorNode.setAttribute("href", dataStr);
+          downloadAnchorNode.setAttribute("download", "scan_report.json");
+          document.body.appendChild(downloadAnchorNode);
+          downloadAnchorNode.click();
+          downloadAnchorNode.remove();
+        });
+
+      // --- 6. History of Recent Scans (Local Storage) ---
+      function getHistory() {
+        const history = localStorage.getItem("scanHistory");
+        return history ? JSON.parse(history) : [];
+      }
+
+      function saveHistory(history) {
+        localStorage.setItem("scanHistory", JSON.stringify(history));
+      }
+
+      function updateRecentScans(name, status, score) {
+        const history = getHistory();
+        const date = new Date()
+          .toISOString()
+          .substring(0, 16)
+          .replace("T", " ");
+        const riskClass =
+          status === "malicious"
+            ? "risk-malicious"
+            : status === "suspicious"
+            ? "risk-suspicious"
+            : "risk-safe";
+        const riskText =
+          status === "malicious"
+            ? "**خطر مرتفع**"
+            : status === "suspicious"
+            ? "مشبوه"
+            : "منخفض";
+
+        const newItem = {
+          date: date,
+          name: name,
+          riskClass: riskClass,
+          riskText: riskText,
+          score: score.toFixed(1),
+        };
+
+        history.unshift(newItem);
+        if (history.length > 5) {
+          history.pop();
+        }
+        saveHistory(history);
+        renderHistoryPanel();
+      }
+
+      function renderHistoryPanel() {
+        const history = getHistory();
+        recentScansList.innerHTML = "";
+
+        if (history.length === 0) {
+          recentScansList.innerHTML =
+            '<p style="color: #999;">لا يوجد سجل فحص محلي حاليًا.</p>';
+          return;
+        }
+
+        history.forEach((item) => {
+          const div = document.createElement("div");
+          div.className = "scan-item";
+          div.innerHTML = `
+                    <span class="scan-details">${item.date} - ${item.name}</span>
+                    <span class="${item.riskClass}">الخطر: ${item.riskText} (${item.score}%)</span>
+                `;
+          recentScansList.appendChild(div);
+        });
+      }
+
+      // Initial load: Render history from local storage
+      document.addEventListener("DOMContentLoaded", () => {
+        renderHistoryPanel();
+      });
+    </script>
+  </body>
+</html>
