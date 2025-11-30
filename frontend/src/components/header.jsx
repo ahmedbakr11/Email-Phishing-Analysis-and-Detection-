@@ -96,7 +96,7 @@ function Header() {
         >
           <span className="d-inline-flex align-items-center">
             <img src={logo} alt="DefendX logo" className="me-2 brand-logo" />
-            DefendX
+            EGuard
           </span>
         </NavLink>
         <button
