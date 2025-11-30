@@ -9,9 +9,34 @@ import {
   USER_UPDATED_EVENT,
 } from "../utils/constants.js";
 
+const MailIcon = () => (
+  <svg className="nav-mail-icon" viewBox="0 0 24 24" role="img" aria-hidden="true" focusable="false">
+    <path
+      d="M4 6.8A1.8 1.8 0 0 1 5.8 5h12.4A1.8 1.8 0 0 1 20 6.8v10.4A1.8 1.8 0 0 1 18.2 19H5.8A1.8 1.8 0 0 1 4 17.2V6.8Z"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.4"
+      strokeLinejoin="round"
+    />
+    <path
+      d="M4.5 7.5 12 12.3l7.5-4.8"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.4"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    />
+  </svg>
+);
+
 function Header() {
   const navigate = useNavigate();
   const [user, setUser] = useState(null);
+  const userInitial = (user?.fullname || user?.full_name || user?.username || "A")
+    .toString()
+    .trim()
+    .charAt(0)
+    .toUpperCase() || "A";
 
   const loadUserFromStorage = () => {
     try {
@@ -89,28 +114,32 @@ function Header() {
 
         <div className="collapse navbar-collapse" id="mainNavbar">
           <ul className="navbar-nav me-auto mb-2 mb-lg-0">
-            <li className="nav-item">
+            <li className="nav-item nav-pill">
               <NavLink to="/analyzer" className={({ isActive }) => `nav-link ${isActive ? "active" : ""}`}>
-                Email Phishing Analyzer
+                <span className="nav-link__icon" aria-hidden="true"><MailIcon /></span>
+                <span>Email Phishing Analyzer</span>
               </NavLink>
             </li>
           </ul>
           <div className="d-flex ms-auto align-items-center">
             <ul className="navbar-nav mb-2 mb-lg-0 align-items-center">
-              <li className="nav-item dropdown">
+              <li className="nav-item dropdown nav-user-wrapper">
                 <a
-                  className="nav-link dropdown-toggle"
+                  className="nav-link dropdown-toggle nav-user-toggle"
                   href="#"
                   role="button"
                   data-bs-toggle="dropdown"
                   aria-expanded="false"
                 >
-                  <span className="text-end nav-user d-inline-flex flex-column align-items-end">
-                    <span className="nav-user__name">
-                      {user ? `Welcome, ${user.fullname?.trim() || user.full_name?.trim() || user.username || "guest"}` : "Welcome, guest"}
-                    </span>
-                    <span className="nav-user__role">
-                      {(user?.role || "user").toLowerCase() === "admin" ? "Admin" : "User"}
+                  <span className="nav-user-chip">
+                    <span className="nav-avatar" aria-hidden="true">{userInitial}</span>
+                    <span className="text-end nav-user d-inline-flex flex-column align-items-end">
+                      <span className="nav-user__name">
+                        {user ? `Welcome, ${user.fullname?.trim() || user.full_name?.trim() || user.username || "guest"}` : "Welcome, guest"}
+                      </span>
+                      <span className="nav-user__role">
+                        {(user?.role || "user").toLowerCase() === "admin" ? "Admin" : "User"}
+                      </span>
                     </span>
                   </span>
                 </a>

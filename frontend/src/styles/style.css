@@ -60,7 +60,7 @@
 body {
   margin: 0;
   min-height: 100vh;
-  background: linear-gradient(135deg, #0a0f1f 0%, #0d1629 35%, #0f2235 100%);
+  background: linear-gradient(140deg, #0c1224 0%, #0b172d 38%, #0c1d32 100%);
   color: var(--text-900);
   overflow-x: hidden;
 }
@@ -78,7 +78,7 @@ body,
 .app-shell {
   position: relative;
   min-height: 100vh;
-  background: linear-gradient(135deg, #0a0f1f 0%, #0d1629 35%, #0f2235 100%);
+  background: linear-gradient(140deg, #0c1224 0%, #0b172d 38%, #0c1d32 100%);
   overflow-x: hidden;
   isolation: isolate;
 }
@@ -92,19 +92,19 @@ body,
 }
 .app-shell::before {
   background:
-    radial-gradient(1100px at 50% 12%, rgba(255, 255, 255, 0.06) 0%, transparent 55%),
-    radial-gradient(780px at 50% 45%, rgba(14, 165, 233, 0.1) 0%, transparent 60%),
-    radial-gradient(640px at 50% 82%, rgba(20, 184, 166, 0.08) 0%, transparent 62%);
+    radial-gradient(1100px at 50% 12%, rgba(255, 255, 255, 0.04) 0%, transparent 55%),
+    radial-gradient(820px at 60% 42%, rgba(14, 165, 233, 0.08) 0%, transparent 60%),
+    radial-gradient(680px at 48% 84%, rgba(20, 184, 166, 0.06) 0%, transparent 62%);
   mix-blend-mode: screen;
-  opacity: 0.9;
+  opacity: 0.65;
 }
 .app-shell::after {
   background: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 120 120'%3e%3cdefs%3e%3cpattern id='hex' width='20' height='17.32' patternUnits='userSpaceOnUse'%3e%3cpath d='M5 0 L15 0 L20 8.66 L15 17.32 L5 17.32 L0 8.66 Z' fill='none' stroke='%23ffffff' stroke-width='0.4' opacity='0.04'/%3e%3c/pattern%3e%3c/defs%3e%3crect width='120' height='120' fill='url(%23hex)'/%3e%3c/svg%3e");
-  opacity: 0.45;
+  opacity: 0.18;
   mix-blend-mode: screen;
-  background-size: 900px 780px;
+  background-size: 1100px 920px;
   background-repeat: repeat;
-  animation: hexScroll 20s linear infinite;
+  animation: hexScroll 28s linear infinite;
 }
 
 @keyframes hexScroll {
@@ -622,9 +622,10 @@ html {
   position: relative;
   overflow: visible;
   isolation: isolate;
-  background: linear-gradient(135deg, #0a0b1e 0%, #0c1b2d 35%, #0f172a 100%);
+  background: rgba(10, 14, 28, 0.9);
   border-bottom: 1px solid rgba(255, 255, 255, 0.06);
-  box-shadow: var(--shadow-soft);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.24);
+  backdrop-filter: blur(14px);
   z-index: 10;
 }
 .app-navbar::before,
@@ -637,16 +638,17 @@ html {
 }
 .app-navbar::before {
   background:
-    radial-gradient(circle at 20% 80%, rgba(14, 165, 233, 0.16) 0%, transparent 50%),
-    radial-gradient(circle at 80% 20%, rgba(20, 184, 166, 0.12) 0%, transparent 52%),
-    radial-gradient(circle at 45% 35%, rgba(15, 23, 42, 0.18) 0%, transparent 50%);
+    radial-gradient(circle at 20% 80%, rgba(14, 165, 233, 0.14) 0%, transparent 50%),
+    radial-gradient(circle at 80% 20%, rgba(20, 184, 166, 0.1) 0%, transparent 52%),
+    radial-gradient(circle at 45% 35%, rgba(15, 23, 42, 0.14) 0%, transparent 50%);
   animation: none;
   filter: saturate(1.08);
+  opacity: 0.75;
 }
 .app-navbar::after {
   background: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3e%3cdefs%3e%3cpattern id='grid' width='10' height='10' patternUnits='userSpaceOnUse'%3e%3cpath d='M 10 0 L 0 0 0 10' fill='none' stroke='%23ffffff' stroke-width='0.3' opacity='0.08'/%3e%3c/pattern%3e%3c/defs%3e%3crect width='100' height='100' fill='url(%23grid)'/%3e%3c/svg%3e");
   mix-blend-mode: screen;
-  opacity: 0.2;
+  opacity: 0.12;
   animation: none;
 }
 .app-navbar .container-fluid,
@@ -667,13 +669,50 @@ html {
 /* Navbar user block (right-aligned) */
 .nav-user { line-height: 1; }
 .nav-user__name { color: #e5e7eb; font-weight: 700; }
-.nav-user__role { color: var(--text-600); font-size: .8rem; }
+.nav-user__role { color: #cbd5e1; font-size: .82rem; }
 
 /* User toggle inherits navbar height and colors */
 .nav-user-toggle { background: transparent; color: #e5e7eb; border: 0; padding: 0; }
 .nav-user-toggle:focus { outline: none; box-shadow: none; }
 .nav-user-toggle .caret { transition: transform .2s ease; }
 .nav-user-toggle .caret.rotate { transform: rotate(180deg); }
+
+.nav-user-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: .55rem;
+  padding: .35rem .6rem;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
+}
+
+.nav-avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 12px;
+  background: linear-gradient(135deg, var(--brand-600), #0ea5e9);
+  color: #0f172a;
+  display: grid;
+  place-items: center;
+  font-weight: 800;
+  letter-spacing: .02em;
+}
+
+.nav-pill .nav-link {
+  border-radius: 999px;
+  padding: .4rem .85rem;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.18);
+}
+.nav-link__icon { opacity: 0.8; display: inline-flex; align-items: center; }
+.nav-mail-icon { width: 18px; height: 18px; }
+.nav-pill .nav-link.active {
+  background: rgba(255, 255, 255, 0.1);
+  border-color: rgba(255, 255, 255, 0.12);
+}
 
 /* Dropdown styling to match navbar theme */
 .nav-user-dropdown {
@@ -696,9 +735,18 @@ html {
   color: #e5e7eb;
   font-weight: 600;
   padding: .3rem .45rem;
-  transition: color .15s ease, background-color .15s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: .45rem;
+  transition: color .15s ease, background-color .15s ease, transform .15s ease;
 }
-.app-navbar .nav-link:hover { color: var(--brand-300); }
+.app-navbar .nav-link:hover { color: var(--brand-300); transform: translateY(-1px); }
+.app-navbar .nav-link.active {
+  color: var(--brand-300);
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: .75rem;
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.22);
+}
 .app-navbar .nav-link:focus-visible { outline: 3px solid color-mix(in oklab, var(--brand-500) 35%, transparent); outline-offset: 2px; border-radius: .5rem; }
 
 .navbar-dark .navbar-toggler { border-color: rgba(255,255,255,0.35); }
